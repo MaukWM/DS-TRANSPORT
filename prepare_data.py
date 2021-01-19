@@ -35,7 +35,6 @@ def clean_data(data_file):
     # Read file
     data = pd.read_csv(data_file)
 
-
     # First remove unnecessary columns
     data = data.drop(columns_to_drop, 1)
 
@@ -43,7 +42,7 @@ def clean_data(data_file):
     return data
 
 
-def prep_data(data_file):
+def prep_hour_data(data_file):
     # First clean the data
     data = pd.read_csv(data_file)
     data = data.drop(columns_to_drop, 1)
@@ -69,18 +68,32 @@ def prep_data(data_file):
     # Drop non cyclical columns
     data = data.drop(["hour", "day", "month", "begintijd"], 1)
 
+    # Drop irrelevant part of location id
+    data["locatiecode"] = [x.split("_")[1] for x in data["locatiecode"]]
+
     # Load metadata
     metadata = pd.read_csv("data/fietsdata_metadata.csv")
-    # print(metadata)
 
-    # First extract latitude and longitude because the data does not offer this.
-    metadata = pd.DataFrame(metadata["Lat/long"].str.split(",", 1).tolist(), columns=["latitude", "longitude"])
-    print(metadata)
+    # Extract latitude and longitude from single column
+    metadata['lat'] = [x.split(",")[0] for x in metadata["Lat/long"]]
+    metadata['long'] = [x.split(",")[1] for x in metadata["Lat/long"]]
 
+    # Only keep lat/long columns
+    metadata = metadata[["Meetpunt", "lat", "long"]]
+    metadata = metadata.rename(columns={"Meetpunt": "locatiecode"})
 
-    # TODO: replace location_code with long and lat
+    # Print for checking unique ids
+    # print(data["locatiecode"].unique())
+    # print(metadata["locatiecode"].unique())
 
-    print(data.head())
+    # Combine metadata with data
+    combined_data = pd.merge(data, metadata, on="locatiecode")
+
+    # Drop location id as it's not necessary anymore
+    combined_data = combined_data.drop("locatiecode", 1)
+
+    # print(combined_data.head())
+
 
     # TODO: Normalize data
     # TODO: Cut into segments of 24 hours (depending on hour/minute data)
@@ -91,6 +104,6 @@ def prep_data(data_file):
     return
 
 
-prep_data("data/fiets_27_april_31_mei_uur.csv")
+prep_hour_data("data/fiets_27_april_31_mei_uur.csv")
 
 
