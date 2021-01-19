@@ -42,9 +42,13 @@ def clean_data(data_file):
     return data
 
 
-def prep_hour_data(data_file):
+def save_data_to_file(data):
+    return
+
+
+def prep_data(data_file, is_minute_resolution=True):
     # First clean the data
-    data = pd.read_csv(data_file)
+    data = pd.read_csv(data_file, nrows=10000)
     data = data.drop(columns_to_drop, 1)
 
     # Change timestamp to make data cyclical: https://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/
@@ -65,6 +69,14 @@ def prep_hour_data(data_file):
     data['hour_sin'] = np.sin(2 * np.pi * data["hour"] / 24)
     data['hour_cos'] = np.cos(2 * np.pi * data["hour"] / 24)
 
+    if is_minute_resolution:
+        data['minute'] = pd.DatetimeIndex(data['begintijd']).minute
+
+        data['minute_sin'] = np.sin(2 * np.pi * data["minute"] / 60)
+        data['minute_cos'] = np.cos(2 * np.pi * data["minute"] / 60)
+
+        data = data.drop("minute", 1)
+
     # Drop non cyclical columns
     data = data.drop(["hour", "day", "month", "begintijd"], 1)
 
@@ -83,8 +95,8 @@ def prep_hour_data(data_file):
     metadata = metadata.rename(columns={"Meetpunt": "locatiecode"})
 
     # Print for checking unique ids
-    # print(data["locatiecode"].unique())
-    # print(metadata["locatiecode"].unique())
+    print(data["locatiecode"].unique())
+    print(metadata["locatiecode"].unique())
 
     # Combine metadata with data
     combined_data = pd.merge(data, metadata, on="locatiecode")
@@ -92,18 +104,30 @@ def prep_hour_data(data_file):
     # Drop location id as it's not necessary anymore
     combined_data = combined_data.drop("locatiecode", 1)
 
-    # print(combined_data.head())
+    # Make everything numeric
+    combined_data = combined_data.apply(pd.to_numeric)
 
+    # Make a plot of every column
+    # column_names = combined_data.columns
+    # for column in column_names:
+    #     axs = combined_data[column].hist(bins=100)
+    #     axs.set_title(column)
+    #     plt.show()
 
-    # TODO: Normalize data
+    # Normalize the data between 0 and 1
+    normalized_data = (combined_data-combined_data.min())/(combined_data.max()-combined_data.min())
+
+    # TODO: Calc distance between points
     # TODO: Cut into segments of 24 hours (depending on hour/minute data)
     # TODO: split into test/train
     # TODO: create in and output numpy arrays for RNN
     # TODO: save as python pickle
     # TODO: Add variable distance for output node to all other nodes as constant to neural network.
-    return
+
+    # TODO: Save data into file so we don't have to prepare before training
+    save_data_to_file(None)
+    return normalized_data
 
 
-prep_hour_data("data/fiets_27_april_31_mei_uur.csv")
-
-
+# print(prep_data("data/fiets_27_april_31_mei_uur.csv").head())
+print(prep_data("data/fiets_27_april_31_mei_minuut.csv").head())
