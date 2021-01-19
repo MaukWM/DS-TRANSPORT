@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
+import pickle as pkl
 
 pd.set_option('max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -133,4 +134,19 @@ def prep_data(data_file, is_minute_resolution=True):
     return normalized_data
 
 
-print(prep_data("data/fiets_1_maart_5_april_minuut.csv").head())
+def split_into_test_train(load_file=True, file_to_load=None):
+    with open(file_to_load, 'rb') as f:
+        data = pkl.load(f)
+    print(data[:5])
+
+    data = data.groupby("times", 0)
+    print(data.head())
+
+
+
+
+
+# print(prep_data("data/fiets_1_maart_5_april_minuut.csv").head())
+split_into_test_train(file_to_load="data/windowed_data.pkl")
+
+
