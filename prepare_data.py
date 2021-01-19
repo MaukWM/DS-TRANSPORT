@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 
 pd.set_option('max_columns', None)
+pd.set_option('display.max_rows', None)
 
 # metadata = pd.read_csv("data/fietsdata_metadata.csv", nrows=4)
 # print(metadata)
@@ -25,8 +26,6 @@ pd.set_option('max_columns', None)
 # plt.show()
 
 # We drop these columns from our data as they add nothing.
-# TODO: Verify minute and hour data contain exactly the same columns
-# TODO: Verify whether type is always the same and what the difference might be
 columns_to_drop = ["type", "naam", "meetperiode", "gebruikte_minuten", "peiling", "betrouwbaarheid", "partnercode",
                    "partner", "aannemer", "meetapparatuur", "licentiecategorie", "beschrijving"]
 
@@ -48,8 +47,13 @@ def save_data_to_file(data):
 
 def prep_data(data_file, is_minute_resolution=True):
     # First clean the data
-    data = pd.read_csv(data_file, nrows=10000)
+    data = pd.read_csv(data_file)
     data = data.drop(columns_to_drop, 1)
+
+    print(data["locatiecode"].unique())
+
+    # Drop a broken datapoint
+    data = data[data["locatiecode"] != "RDH03_RK03B"]
 
     # Change timestamp to make data cyclical: https://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/
     data["begintijd"] = pd.to_datetime(data["begintijd"])
@@ -95,8 +99,8 @@ def prep_data(data_file, is_minute_resolution=True):
     metadata = metadata.rename(columns={"Meetpunt": "locatiecode"})
 
     # Print for checking unique ids
-    print(data["locatiecode"].unique())
-    print(metadata["locatiecode"].unique())
+    # print(data["locatiecode"].unique())
+    # print(metadata["locatiecode"].unique())
 
     # Combine metadata with data
     combined_data = pd.merge(data, metadata, on="locatiecode")
@@ -124,10 +128,9 @@ def prep_data(data_file, is_minute_resolution=True):
     # TODO: save as python pickle
     # TODO: Add variable distance for output node to all other nodes as constant to neural network.
 
-    # TODO: Save data into file so we don't have to prepare before training
+    # TODO: Save data into file so we don't have to prepare before training everytime
     save_data_to_file(None)
     return normalized_data
 
 
-# print(prep_data("data/fiets_27_april_31_mei_uur.csv").head())
-print(prep_data("data/fiets_27_april_31_mei_minuut.csv").head())
+print(prep_data("data/fiets_1_maart_5_april_minuut.csv").head())
