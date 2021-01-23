@@ -9,7 +9,7 @@ df.to_pickle("data/windowed_data.pkl")
 
 # df = pd.read_pickle('data/windowed_data.pkl')
 print(3)
-train, test = prepare_train_test(df, 5, 0.7)
+train, test = prepare_train_test(df, 2, 0.7)
 
 print(4)
 train_x, train_y = train
@@ -30,6 +30,7 @@ model = Model(training_data=(train_x, train_y), validation_data=(test_x, test_y)
 
 print(6)
 model.build_model()
+model.predict(train_x[0], plot=True, y=train_y[0])
 hst = model.train()
 # model.visualize_loss(hst)
 model.predict(train_x[0], plot=True, y=train_y[0])
