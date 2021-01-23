@@ -70,7 +70,7 @@ class Model:
             save_best_only=True,
         )
 
-        callbacks = [es_callback, modelckpt_callback]
+        callbacks = [modelckpt_callback]  # TODO: Add back early stopping: es_callback
 
         val = (self.test_x, self.test_y)
         history = self.model.fit(x=self.train_x, y=self.train_y, steps_per_epoch=self.steps_per_epoch,

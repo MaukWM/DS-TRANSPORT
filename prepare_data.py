@@ -139,7 +139,9 @@ def prep_data(data_file, is_minute_resolution=True):
     return normalized_data
 
 
-columns_to_listify = ['intensiteit_oplopend', 'intensiteit_aflopend', 'intensiteit_beide_richtingen']
+# TODO: Add minute sin and cos
+columns_to_listify = ['intensiteit_oplopend', 'intensiteit_aflopend', 'intensiteit_beide_richtingen', 'month_sin',
+                      'month_cos', 'day_sin', 'day_cos', 'hour_sin', 'hour_cos', 'lat', 'long']
 
 
 def batchify(df, n_per_group=3, pckle=True):
