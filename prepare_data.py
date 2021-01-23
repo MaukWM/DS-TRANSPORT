@@ -51,7 +51,7 @@ def prep_data(data_file, is_minute_resolution=True):
     data = pd.read_csv(data_file)
     data = data.drop(columns_to_drop, 1)
 
-    print(data["locatiecode"].unique())
+    # print(data["locatiecode"].unique())
 
     # Drop a broken datapoint
     data = data[data["locatiecode"] != "RDH03_RK03B"]
@@ -111,7 +111,10 @@ def prep_data(data_file, is_minute_resolution=True):
     # combined_data = combined_data.drop("locatiecode", 1)
 
     # Make everything numeric
-    combined_data = combined_data.apply(pd.to_numeric)
+    # combined_data = combined_data.apply(pd.to_numeric)
+    cols = [i for i in combined_data.columns if i not in ["locatiecode"]]
+    for col in cols:
+        combined_data[col] = pd.to_numeric(combined_data[col])
 
     # TODO: Normalize data
     # Make a plot of every column
@@ -122,7 +125,10 @@ def prep_data(data_file, is_minute_resolution=True):
     #     plt.show()
 
     # Normalize the data between 0 and 1
-    normalized_data = (combined_data-combined_data.min())/(combined_data.max()-combined_data.min())
+    normalized_data = combined_data
+    # normalized_data = (combined_data-combined_data.min())/(combined_data.max()-combined_data.min())
+    for col in cols:
+        normalized_data[col] = (normalized_data[col]-normalized_data[col].min())/(normalized_data[col].max()-normalized_data[col].min())
 
     # TODO: Calc distance between points
     # TODO: Cut into segments of 24 hours (depending on hour/minute data)
@@ -266,6 +272,6 @@ def prepare_train_test(data, n_closest, split):
     # (x_train, y_train), (x_train, y_train)
     return get_train_or_test(data, test_locs, True), get_train_or_test(data, test_locs, False)
 
-# d = prep_hour_data("data/fiets_1_maart_5_april_uur.csv")
-# df = batchify(d, n_per_group = 24, pckle = False)
-# x, y = prepare_train_test(df, 5, 0.7)
+d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
+df = batchify(d, n_per_group = 24, pckle = False)
+x, y = prepare_train_test(df, 5, 0.7)
