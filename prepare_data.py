@@ -145,7 +145,10 @@ columns_to_listify = ['intensiteit_oplopend', 'intensiteit_aflopend', 'intensite
 
 
 def batchify(df, n_per_group=3, pckle=True):
-    static_cols = ['locatiecode', 'lat', 'long']
+    df['lat_static'] = df['lat']
+    df['long_static'] = df['long']
+
+    static_cols = ['locatiecode', 'lat_static', 'long_static']
     bounds = df.begintijd.sort_values().unique()
     # bins = list(zip(bounds[:-2], bounds[2:]))
 
@@ -213,7 +216,7 @@ def haversine_np(lon1, lat1, lon2, lat2):
 
 def prepare_train_test(data, n_closest, split):
     def get_train_or_test(data, test_locs, train):
-        locations = data[['locatiecode', 'lat', 'long']]
+        locations = data[['locatiecode', 'lat_static', 'long_static']]
         locations = locations.drop_duplicates()
 
         if train:
@@ -221,8 +224,8 @@ def prepare_train_test(data, n_closest, split):
 
         loc_index = {loc: i for i, loc in enumerate(locations.locatiecode)}
         locations['loc_index'] = [loc_index[loc] for loc in locations.locatiecode]
-        lat = {i: float(l) for i, l in zip(locations.loc_index, locations.lat)}
-        long = {i: float(l) for i, l in zip(locations.loc_index, locations.long)}
+        lat = {i: float(l) for i, l in zip(locations.loc_index, locations.lat_static)}
+        long = {i: float(l) for i, l in zip(locations.loc_index, locations.long_static)}
 
         distances = np.zeros((len(locations), len(locations)))
         for i in range(len(locations)):
@@ -247,13 +250,12 @@ def prepare_train_test(data, n_closest, split):
                 closest_indices = np.argsort(distances[i, :])[-(n_closest + 1):-1]
                 x_new = []
                 for j in closest_indices:
-                    group[columns_to_listify].take([j])
                     x_new.append((distances[i, j], group[columns_to_listify].take([j])))
                 x.append(x_new)
 
         res_y = []
         for y_point in y:
-            res_y.append(np.stack(y[0].to_numpy()))
+            res_y.append(np.stack(y_point.to_numpy()))
         res_y = np.array(res_y)
 
         res_x = []
@@ -261,13 +263,15 @@ def prepare_train_test(data, n_closest, split):
             arrs = []
             for dist, data in x_point:
                 d = data.to_numpy()
-                arrs.append(np.stack([np.array(l) for l in d[0]] + np.array([dist] * len(d[0][0]))))
+                feat_arrays = [np.array(l) for l in d[0]]
+                feat_arrays.append(np.array([dist] * len(d[0][0])))
+                arrs.append(np.stack(feat_arrays))
             res_x.append(np.stack(arrs))
         res_x = np.array(res_x)
 
         return res_x, res_y
 
-    locs = data[['locatiecode', 'lat', 'long']]
+    locs = data[['locatiecode', 'lat_static', 'long_static']]
     locs = locs.drop_duplicates()
 
     test_locs = locs.locatiecode.sample(frac=split).tolist()

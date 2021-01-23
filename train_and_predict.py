@@ -1,11 +1,13 @@
 from prepare_data import prep_data, batchify, prepare_train_test
 from rnn_model import Model
-
+import pandas as pd
 print(1)
 d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
 print(2)
 df = batchify(d, n_per_group = 24, pckle = False)
+df.to_pickle("data/windowed_data.pkl")
 
+# df = pd.read_pickle('data/windowed_data.pkl')
 print(3)
 train, test = prepare_train_test(df, 5, 0.7)
 
