@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 
 class Model:
 
-    def __init__(self, training_data=None, validation_data=None, batch_size=256, state_size=1, input_feature_amount=10, output_feature_amount=1,
+    def __init__(self, training_data=None, validation_data=None, batch_size=256, state_size=128, input_feature_amount=10, output_feature_amount=1,
                  seq_len_in=24, seq_len_out=24, steps_per_epoch=100, epochs=20, learning_rate=0.00075):
 
         self.training_data = training_data
@@ -32,6 +32,9 @@ class Model:
         self.state_size = state_size
         self.seq_len_in = seq_len_in
         self.seq_len_out = seq_len_out
+
+        self.input_feature_amount = input_feature_amount
+        self.output_feature_amount = output_feature_amount
 
         self.test_train_ratio = 0.5
 
@@ -50,7 +53,7 @@ class Model:
     def build_model(self):
         inputs = ks.layers.Input(shape=self.input_shape)
         lstm_out = ks.layers.LSTM(self.state_size, return_sequences=True)(inputs)
-        outputs = ks.layers.Dense(1)(lstm_out)
+        outputs = ks.layers.Dense(self.output_feature_amount)(lstm_out)
 
         self.model = ks.Model(inputs=inputs, outputs=outputs)
         self.model.compile(optimizer=ks.optimizers.Adam(learning_rate=self.learning_rate), loss="mse")
@@ -111,16 +114,16 @@ class Model:
         plt.show()
 
 
-# Create input dummy set, with 100 datapoints, of 24 hours, with 50 input features
-input_data = np.zeros((100, 24, 50)) + 1
-# Create output dummy set, with 100 datapoints, of 24 hours, with 1 output feature
-output_data = np.zeros((100, 24, 1)) + 2
-
-dummy_train_data = input_data[:80, :], output_data[:80, :]
-dummy_test_data = input_data[80:, :], output_data[80:, :]
-
-model = Model(training_data=dummy_train_data, validation_data=dummy_test_data, epochs=100)
-model.build_model()
-hst = model.train()
-# model.visualize_loss(hst)
-model.predict(dummy_train_data[0][0], plot=True, y=dummy_train_data[1][0])
+# # Create input dummy set, with 100 datapoints, of 24 hours, with 50 input features
+# input_data = np.zeros((100, 24, 50)) + 1
+# # Create output dummy set, with 100 datapoints, of 24 hours, with 1 output feature
+# output_data = np.zeros((100, 24, 1)) + 2
+#
+# dummy_train_data = input_data[:80, :], output_data[:80, :]
+# dummy_test_data = input_data[80:, :], output_data[80:, :]
+#
+# model = Model(training_data=dummy_train_data, validation_data=dummy_test_data, epochs=100)
+# model.build_model()
+# hst = model.train()
+# # model.visualize_loss(hst)
+# model.predict(dummy_train_data[0][0], plot=True, y=dummy_train_data[1][0])

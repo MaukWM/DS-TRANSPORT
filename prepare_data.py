@@ -240,7 +240,8 @@ def prepare_train_test(data, n_closest, split):
 
         for time, group in groups:
             for i in range(len(locations)):
-                y.append(group[columns_to_listify].take([i]))
+                # TODO: select column we want to predict
+                y.append(group["intensiteit_beide_richtingen"].take([i]))
                 closest_indices = np.argsort(distances[i, :])[-(n_closest + 1):-1]
                 x_new = []
                 for j in closest_indices:
@@ -272,6 +273,22 @@ def prepare_train_test(data, n_closest, split):
     # (x_train, y_train), (x_train, y_train)
     return get_train_or_test(data, test_locs, True), get_train_or_test(data, test_locs, False)
 
-d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
-df = batchify(d, n_per_group = 24, pckle = False)
-x, y = prepare_train_test(df, 5, 0.7)
+# d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
+# df = batchify(d, n_per_group = 24, pckle = False)
+# # x, y = prepare_train_test(df, 5, 0.7)
+#
+# from rnn_model import Model
+#
+# train, test = prepare_train_test(df, 5, 0.7)
+#
+# train_x, train_y = train
+# test_x, test_y = test
+#
+# # dummy_train_data = input_data[:80, :], output_data[:80, :]
+# # dummy_test_data = input_data[80:, :], output_data[80:, :]
+#
+# model = Model(training_data=train, validation_data=test, epochs=100)
+# model.build_model()
+# hst = model.train()
+# # model.visualize_loss(hst)
+# model.predict(test_x[0], plot=True, y=test_y[0])
