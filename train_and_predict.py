@@ -1,22 +1,32 @@
 from prepare_data import prep_data, batchify, prepare_train_test
 from rnn_model import Model
+import numpy as np
 import pickle
 import pandas as pd
 
 generate_data = True
 if generate_data:
-    print(1)
-    d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
-    print(2)
-    df = batchify(d, n_per_group = 24, pckle = False)
-    df.to_pickle("data/windowed_data.pkl")
+    data_files = ["data/fiets_27_april_31_mei_uur.csv", "data/fiets_1_maart_5_april_uur.csv"]
+    time_units = 24
+    n_neighbours = 5
+    results = []
 
-    # df = pd.read_pickle('data/windowed_data.pkl')
-    print(3)
+    for file in data_files:
+        print(1)
+        d = prep_data(data_file=file)
+        print(2)
+        df = batchify(d, n_per_group = time_units, pckle = False)
+        df.to_pickle("data/windowed_data.pkl")
 
-    to_pkl = prepare_train_test(df, 8, 0.2)
+        # df = pd.read_pickle('data/windowed_data.pkl')
+        print(3)
+
+        result = prepare_train_test(df, n_neighbours, 0.2)
+        results.append(result)
+
+    to_pkl = tuple([np.concatenate(list(t)) for t in zip(*results)])
+
     train_x, train_y, test_x, test_y, means_y = to_pkl
-
     pickle.dump(to_pkl, open("testtrain.p", "wb"))
     with open("testtrain.p", "wb") as f:
         pickle.dump(to_pkl, f)
