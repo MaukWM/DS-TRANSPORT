@@ -30,7 +30,6 @@ print(4)
 print(train_x.shape, train_y.shape)
 print(test_x.shape, test_y.shape)
 print(means_y.shape)
-exit()
 print(5)
 
 model = Model(training_data=(train_x, train_y), validation_data=(test_x, test_y), epochs=100, input_feature_amount=train_x.shape[2],
