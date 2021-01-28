@@ -82,15 +82,15 @@ class Model:
         # TODO: Denormalize prediction
         # Expand dimension so that keras doesn't complain
         x = np.expand_dims(x, axis=0)
-        print(self.input_shape, x.shape)
+        # print(self.input_shape, x.shape)
         result = self.model.predict(x)[0]
 
         if plot:
-            print(y.shape, result.shape)
-            print("y", y)
+            # print(y.shape, result.shape)
+            # print("y", y)
             plt.plot(y, label="real")
 
-            print("result", result)
+            # print("result", result)
             plt.plot(result, label="predicted")
 
             plt.title(label="Prediction")

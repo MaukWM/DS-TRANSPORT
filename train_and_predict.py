@@ -9,13 +9,12 @@ df.to_pickle("data/windowed_data.pkl")
 
 # df = pd.read_pickle('data/windowed_data.pkl')
 print(3)
-train, test = prepare_train_test(df, 5, 0.7)
+train, test = prepare_train_test(df, 8, 0.2)
 
 print(4)
 
 train_x, train_y = train
 test_x, test_y = test
-
 
 
 s = train[0].shape
