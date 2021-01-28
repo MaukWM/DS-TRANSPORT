@@ -70,7 +70,7 @@ class Model:
             save_best_only=True,
         )
 
-        callbacks = [modelckpt_callback]  # TODO: Add back early stopping: es_callback
+        callbacks = [es_callback, modelckpt_callback]  # TODO: Add back early stopping: es_callback
 
         val = (self.test_x, self.test_y)
         history = self.model.fit(x=self.train_x, y=self.train_y, steps_per_epoch=self.steps_per_epoch,
@@ -82,15 +82,15 @@ class Model:
         # TODO: Denormalize prediction
         # Expand dimension so that keras doesn't complain
         x = np.expand_dims(x, axis=0)
-        print(self.input_shape, x.shape)
+        # print(self.input_shape, x.shape)
         result = self.model.predict(x)[0]
 
         if plot:
-            print(y.shape, result.shape)
-            print("y", y)
+            # print(y.shape, result.shape)
+            # print("y", y)
             plt.plot(y, label="real")
 
-            print("result", result)
+            # print("result", result)
             plt.plot(result, label="predicted")
 
             plt.title(label="Prediction")
@@ -100,7 +100,8 @@ class Model:
 
         return result
 
-    def visualize_loss(self, history):
+    @staticmethod
+    def visualize_loss(history):
         loss = history.history["loss"]
         val_loss = history.history["val_loss"]
         epochs = range(len(loss))

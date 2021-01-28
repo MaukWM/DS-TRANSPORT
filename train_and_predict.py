@@ -14,7 +14,7 @@ if generate_data:
     # df = pd.read_pickle('data/windowed_data.pkl')
     print(3)
 
-    to_pkl = prepare_train_test(df, 8, 0.7)
+    to_pkl = prepare_train_test(df, 8, 0.2)
     train_x, train_y, test_x, test_y, means_y = to_pkl
 
     pickle.dump(to_pkl, open("testtrain.p", "wb"))
@@ -37,10 +37,15 @@ model = Model(training_data=(train_x, train_y), validation_data=(test_x, test_y)
 
 print(6)
 model.build_model()
-model.predict(test_x[0], plot=True, y=test_y[0])
+# model.predict(train_x[0], plot=True, y=train_y[0])
 hst = model.train()
 # model.visualize_loss(hst)
-model.predict(test_y[0], plot=True, y=test_y[0])
+# model.model.load_model("data/checkpoint2021-01-23_211350.h5")
+model.predict(test_x[40], plot=True, y=test_y[40])
+model.predict(test_x[41], plot=True, y=test_y[41])
+model.predict(test_x[42], plot=True, y=test_y[42])
+model.predict(test_x[43], plot=True, y=test_y[43])
+model.predict(test_x[44], plot=True, y=test_y[44])
 
 # Evaluate the model
 loss, acc = model.model.evaluate(test_x, test_y, verbose=2)
