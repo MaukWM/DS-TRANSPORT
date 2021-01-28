@@ -1,5 +1,7 @@
 # alle nodes pakken voor uur data -> voorspellen voor een node elk uur voor 24 uur
 # kijken naar verschil dichtsbijzendste 5 nodes of alle nodes, krijg je beter resultaten? Wat is de impact op performance?
+import pickle
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -310,3 +312,13 @@ def prepare_train_test(data, n_closest, split, pickle=0):
 # hst = model.train()
 # # model.visualize_loss(hst)
 # model.predict(test_x[0], plot=True, y=test_y[0])
+
+
+# df = pd.read_pickle('data/windowed_data.pkl')
+# # # print(df.head())
+# train_x, train_y, test_x, test_y, mean_y = prepare_train_test(df, 8, 0.2)
+# #
+# to_pkl = ((train_x, train_y), (test_x, test_y), mean_y)
+# pickle.dump(to_pkl, open("testtrain8nodes.p", "wb"))
+# with open("testtrain5nodes.p", "wb") as f:
+#     pickle.dump(to_pkl, f)

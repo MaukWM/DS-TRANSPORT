@@ -17,11 +17,11 @@ if generate_data:
     to_pkl = prepare_train_test(df, 8, 0.2)
     train_x, train_y, test_x, test_y, means_y = to_pkl
 
-    pickle.dump(to_pkl, open("testtrain.p", "wb"))
-    with open("testtrain.p", "wb") as f:
+    pickle.dump(to_pkl, open("testtrain5nodes.p", "wb"))
+    with open("testtrain5nodes.p", "wb") as f:
         pickle.dump(to_pkl, f)
 else:
-    with open("testtrain.p", "rb") as f:
+    with open("testtrain5nodes.p", "rb") as f:
         train_x, train_y, test_x, test_y, means_y = pickle.load(f)
 
 print(4)

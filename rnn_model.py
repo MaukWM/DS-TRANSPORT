@@ -96,6 +96,9 @@ class Model:
             plt.title(label="Prediction")
             plt.legend()
 
+            plt.ylabel("Intensity (both directions)")
+            plt.xlabel("Timestep (1 hour)")
+
             plt.show()
 
         return result
