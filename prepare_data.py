@@ -150,8 +150,12 @@ columns_to_listify = ['intensiteit_beide_richtingen', 'intensiteit_oplopend', 'i
 def batchify(df, n_per_group=3, pckle=True):
     df['lat_static'] = df['lat']
     df['long_static'] = df['long']
-
+    nan_locs = df[df[columns_to_listify].isnull().any(axis=1)]['locatiecode']
     static_cols = ['locatiecode', 'lat_static', 'long_static']
+
+    df = df[~df['locatiecode'].isin(nan_locs)]
+
+
     bounds = df.begintijd.sort_values().unique()
     # bins = list(zip(bounds[:-2], bounds[2:]))
 
