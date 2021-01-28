@@ -142,7 +142,7 @@ def prep_data(data_file, is_minute_resolution=True):
 # TODO: Add minute sin and cos
 # columns_to_listify = ['intensiteit_oplopend', 'intensiteit_aflopend', 'intensiteit_beide_richtingen', 'month_sin',
 #                       'month_cos', 'day_sin', 'day_cos', 'hour_sin', 'hour_cos', 'lat', 'long']
-columns_to_listify = ['intensiteit_oplopend', 'intensiteit_aflopend', 'intensiteit_beide_richtingen', 'month_sin',
+columns_to_listify = ['intensiteit_beide_richtingen', 'intensiteit_oplopend', 'intensiteit_aflopend', 'month_sin',
                        'month_cos', 'day_sin', 'day_cos', 'hour_sin', 'hour_cos', 'lat', 'long']
 
 def batchify(df, n_per_group=3, pckle=True):
@@ -215,7 +215,7 @@ def haversine_np(lon1, lat1, lon2, lat2):
     return km
 
 
-def prepare_train_test(data, n_closest, split):
+def prepare_train_test(data, n_closest, split, pickle=0):
     def get_train_or_test(data, test_locs, train):
         locations = data[['locatiecode', 'lat_static', 'long_static']]
         locations = locations.drop_duplicates()
@@ -276,9 +276,20 @@ def prepare_train_test(data, n_closest, split):
     locs = locs.drop_duplicates()
 
     test_locs = locs.locatiecode.sample(frac=split).tolist()
+    train_x, train_y = get_train_or_test(data, test_locs, True)
+    test_x, test_y = get_train_or_test(data, test_locs, False)
+    s = train_x.shape
+    train_x = train_x.transpose((0, 3, 1, 2)).reshape((-1, s[3], s[1] * s[2]))
+    train_y = train_y.transpose((0, 2, 1))
+
+    # s = (None, 1, 24)
+
+    mean_y = test_x.transpose((0, 3, 2, 1))[:, :, 0, :].mean(axis=2).reshape(-1,s[3], 1)
+    test_x = test_x.transpose((0, 3, 1, 2)).reshape((-1, s[3], s[1] * s[2]))
+    test_y = test_y.transpose((0, 2, 1))
 
     # (x_train, y_train), (x_train, y_train)
-    return get_train_or_test(data, test_locs, True), get_train_or_test(data, test_locs, False)
+    return train_x, train_y, test_x, test_y, mean_y
 
 # d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
 # df = batchify(d, n_per_group = 24, pckle = False)
