@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 class Model:
 
     def __init__(self, training_data=None, validation_data=None, batch_size=256, state_size=32, input_feature_amount=10, output_feature_amount=1,
-                 seq_len_in=24, seq_len_out=24, steps_per_epoch=100, epochs=20, learning_rate=0.000075):
+                 seq_len_in=24, seq_len_out=24, steps_per_epoch=25, epochs=20, learning_rate=0.000045):
 
         self.training_data = training_data
         self.validation_data = validation_data
@@ -60,7 +60,7 @@ class Model:
         self.model.summary()
 
     def train(self):
-        es_callback = ks.callbacks.EarlyStopping(monitor="val_loss", min_delta=0, patience=5)
+        es_callback = ks.callbacks.EarlyStopping(monitor="val_loss", min_delta=0, patience=25)
 
         modelckpt_callback = ks.callbacks.ModelCheckpoint(
             monitor="val_loss",

@@ -9,8 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-
-
 # Evaluate mean error
 def calc_rmse(model, test_x, test_y, mean_y, sample_size=200, all_samples=False):
     # First make all the predictions
@@ -41,8 +39,8 @@ def calc_rmse(model, test_x, test_y, mean_y, sample_size=200, all_samples=False)
     # print(test_y.shape)
 
     # Calculate difference
-    y_max = np.amax(predictions)
-    y_min = np.amin(predictions)
+    y_max = np.amax(sampled_test_y)
+    y_min = np.amin(sampled_test_y)
 
     # Root mean squared error
     rmse = math.sqrt(np.sum(np.square(predictions - sampled_test_y)) / sample_size)
@@ -62,8 +60,8 @@ def calc_rmse(model, test_x, test_y, mean_y, sample_size=200, all_samples=False)
 
     # Naive model predict
     # Calculate difference
-    y_max_naive = np.amax(mean_y)
-    y_min_naive = np.amin(mean_y)
+    y_max_naive = np.amax(sampled_test_y)
+    y_min_naive = np.amin(sampled_test_y)
 
     # RMSE
     rmse_naive = math.sqrt(np.sum(np.square(mean_y_sampled - sampled_test_y)) / sample_size)
@@ -80,6 +78,47 @@ def calc_rmse(model, test_x, test_y, mean_y, sample_size=200, all_samples=False)
     # Standard deviation
     sd = np.std(mean_y_sampled - sampled_test_y)
     print("NAIVE SD: {0:.2f}".format(sd))
+
+
+def calculate_accuracy_per_time_step(test_x, test_y, mean_y):
+    """
+    For one model, calculate acc per time step
+    :param test_x:
+    :param test_y:
+    :param mean_y:
+    :param rnn_model:
+    :param plot:
+    :param save:
+    :return:
+    """
+    # yyy = 2500
+    # test_y = test_y[:yyy]
+    # mean_y = mean_y[:yyy]
+    # test_x = test_x[:yyy]
+
+    naive_model_diffs = abs(test_y - mean_y)
+    naive_model_err_per_time_step = np.mean(naive_model_diffs, axis=0)
+
+    plt.grid(color='lightgray', linestyle='--')
+
+    rnn_preds = []
+    for i in range(len(test_x)):
+        rnn_preds.append(model.predict(test_x[i], plot=False))
+
+    rnn_model_diffs = abs(test_y - rnn_preds)
+    rnn_model_err_per_time_step = np.mean(rnn_model_diffs, axis=0)
+
+    # plt.plot(np.reshape(test_y[0], newshape=(24 ,1)), label="actual0")
+    # plt.plot(np.reshape(mean_y[0], newshape=(24 ,1)), label="naive0")
+    # plt.plot(np.reshape(rnn_preds[0], newshape=(24 ,1)), label="rnn0")
+
+    plt.plot(naive_model_err_per_time_step, label="naive_model")
+    plt.plot(rnn_model_err_per_time_step, label="rnn_model")
+    plt.title("Average error per time step")
+
+    plt.legend()
+
+    plt.show()
 
 
 # Make prediction with naive model
@@ -106,6 +145,18 @@ def generate_naive_prediction(test_y, mean_y, plot=True):
         plt.show()
 
 
+def plot_loss_from_hist(hist_dict):
+    plt.plot(hist_dict.history['loss'], label="loss")
+    plt.plot(hist_dict.history['val_loss'], label="val_loss")
+
+    plt.legend()
+
+    plt.ylabel("Loss")
+    plt.xlabel("Epoch")
+
+    plt.show()
+
+
 if __name__ == "__main__":
     # d = prep_data(data_file="data/fiets_1_maart_5_april_uur.csv")
 
@@ -122,13 +173,13 @@ if __name__ == "__main__":
     #     pickle.dump(to_pkl, f)
 
     # train, test = pickle.load(open("testtrain5nodes.p", "rb"))
-    print("2nodes")
-    with open("testtrain2nodes.p", "rb") as f:
-        train, test, mean_y = pickle.load(f)
+    print(2)
+    with open("testtrain2.p", "rb") as f:
+        train_x, train_y, test_x, test_y, mean_y = pickle.load(f)
 
     # Set test and train
-    train_x, train_y = train
-    test_x, test_y = test
+    train = (train_x, train_y)
+    test = (test_x, test_y)
 
     # Make shapes correct
     # s = train[0].shape
@@ -138,21 +189,26 @@ if __name__ == "__main__":
     # test_x = test_x.transpose((0, 3, 1, 2)).reshape((-1, s[3], s[1]*s[2]))
     # test_y = test_y.transpose((0, 2, 1))
 
-    model = Model(training_data=(train_x, train_y), validation_data=(test_x, test_y), epochs=100,
+    model = Model(training_data=(train_x, train_y), validation_data=(test_x, test_y), epochs=400,
                   input_feature_amount=train_x.shape[2],
                   output_feature_amount=train_y.shape[2])
 
     model.build_model()
+    model.model.load_weights("models/2nodesmodel.h5")
     # model.predict(train_x[0], plot=True, y=train_y[0])
-    hst = model.train()
+    # hst = model.train()
     # model.visualize_loss(hst)
     # model.model.load_model("data/checkpoint2021-01-23_211350.h5")
-    model.predict(test_x[40], plot=True, y=test_y[40])
-    model.predict(test_x[41], plot=True, y=test_y[41])
-    model.predict(test_x[42], plot=True, y=test_y[42])
-    model.predict(test_x[43], plot=True, y=test_y[43])
-    model.predict(test_x[44], plot=True, y=test_y[44])
+    # model.predict(test_x[40], plot=True, y=test_y[40])
+    # model.predict(test_x[41], plot=True, y=test_y[41])
+    # model.predict(test_x[42], plot=True, y=test_y[42])
+    # model.predict(test_x[43], plot=True, y=test_y[43])
+    # model.predict(test_x[44], plot=True, y=test_y[44])
 
-    calc_rmse(model, test_x, test_y, mean_y, all_samples=True)
+    # calc_rmse(model, test_x, test_y, mean_y, all_samples=True)
 
-    generate_naive_prediction(test_y, mean_y)
+    # generate_naive_prediction(test_y, mean_y)
+
+    calculate_accuracy_per_time_step(test_x, test_y, mean_y)
+
+    # plot_loss_from_hist(hst)
