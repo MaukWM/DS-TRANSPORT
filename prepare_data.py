@@ -40,7 +40,6 @@ def clean_data(data_file):
     # First remove unnecessary columns
     data = data.drop(columns_to_drop, 1)
 
-    # TODO: Check for NaNs in data
     return data
 
 
@@ -118,7 +117,6 @@ def prep_data(data_file, is_minute_resolution=True):
     for col in cols:
         combined_data[col] = pd.to_numeric(combined_data[col])
 
-    # TODO: Normalize data
     # Make a plot of every column
     # column_names = combined_data.columns
     # for column in column_names:
@@ -132,20 +130,14 @@ def prep_data(data_file, is_minute_resolution=True):
     for col in cols:
         normalized_data[col] = (normalized_data[col]-normalized_data[col].min())/(normalized_data[col].max()-normalized_data[col].min())
 
-    # TODO: Calc distance between points
-    # TODO: Cut into segments of 24 hours (depending on hour/minute data)
-    # TODO: split into test/train
-    # TODO: create in and output numpy arrays for RNN
-    # TODO: save as python pickle
-    # TODO: Add variable distance for output node to all other nodes as constant to neural network.
     return normalized_data
 
 
-# TODO: Add minute sin and cos
 # columns_to_listify = ['intensiteit_oplopend', 'intensiteit_aflopend', 'intensiteit_beide_richtingen', 'month_sin',
 #                       'month_cos', 'day_sin', 'day_cos', 'hour_sin', 'hour_cos', 'lat', 'long']
 columns_to_listify = ['intensiteit_beide_richtingen', 'intensiteit_oplopend', 'intensiteit_aflopend', 'month_sin',
                        'month_cos', 'day_sin', 'day_cos', 'hour_sin', 'hour_cos', 'lat', 'long']
+
 
 def batchify(df, n_per_group=3, pckle=True):
     df['lat_static'] = df['lat']
